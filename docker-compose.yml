@@ -1,11 +1,24 @@
-version: '3.3'
+version: '3'
+
 services:
   dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
+    image: amazon/dynamodb-local
     ports:
       - "8000:8000"
     volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
-    working_dir: /home/dynamodblocal
+      - dynamodb_local_data:/data
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /data"
+    environment:
+      - http_proxy=http://proxy.intra.dialonet.jp:8080
+      - no_proxy=127.0.0.1,localhost
+    user: root
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+
+volumes:
+  dynamodb_local_data:
+
